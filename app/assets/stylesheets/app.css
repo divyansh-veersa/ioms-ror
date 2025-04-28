@@ -1,0 +1,15 @@
+/*
+ * This is the main stylesheet for the IOMS application
+ * It will be precompiled by the Rails asset pipeline
+ *
+ *= require_self
+ *= require_tree .
+ */
+
+/* Base styles */
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+/* You can include additional styles here or import from other files */

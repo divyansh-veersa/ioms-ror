@@ -1,0 +1,8 @@
+/*
+ * This is a manifest file that'll be compiled into application.css.
+ *
+ * Any CSS required by the application can be referenced here using a relative path.
+ *
+ *= require_self
+ *= require_tree .
+ */
