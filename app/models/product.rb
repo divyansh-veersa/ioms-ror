@@ -9,6 +9,14 @@ class Product < ApplicationRecord
 
   scope :active, -> { where(status: true) }
   scope :inactive, -> { where(status: false) }
-  scope :low_stock, -> { where("stock_quantity < ?", 5) }
+  scope :low_stock, -> { where("stock_quantity < ?", 10) }
   scope :out_of_stock, -> { where(stock_quantity: 0) }
+
+  def update_stock(quantity)
+    update(stock_quantity: stock_quantity - quantity) if quantity <= stock_quantity
+  end
+
+  def status_text
+    status ? "Active" : "Inactive"
+  end
 end
