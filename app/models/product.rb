@@ -15,8 +15,4 @@ class Product < ApplicationRecord
   def update_stock(quantity)
     update(stock_quantity: stock_quantity - quantity) if quantity <= stock_quantity
   end
-
-  def status_text
-    status ? "Active" : "Inactive"
-  end
 end
