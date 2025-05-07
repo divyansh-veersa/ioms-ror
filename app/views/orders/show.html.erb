@@ -1,0 +1,119 @@
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <div>
+      <h1 class="text-3xl font-bold">Order #<%= @order.id %></h1>
+      <p class="text-gray-500">Placed on <%= @order.created_at.strftime("%B %d, %Y at %I:%M %p") %></p>
+    </div>
+    <%= link_to "Back to Orders", orders_path, class: "bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded" %>
+  </div>
+  
+  <!-- Order Status -->
+  <div class="bg-white p-6 rounded-lg shadow">
+    <div class="flex justify-between items-center">
+      <div>
+        <h2 class="text-lg font-semibold mb-2">Status</h2>
+        <% status_class = case @order.status 
+           when 'pending' then 'bg-gray-100 text-gray-800'
+           when 'processing' then 'bg-blue-100 text-blue-800'
+           when 'shipped' then 'bg-purple-100 text-purple-800'
+           when 'delivered' then 'bg-green-100 text-green-800'
+           when 'canceled' then 'bg-red-100 text-red-800'
+           end %>
+        <span class="<%= status_class %> text-xs font-medium px-2.5 py-0.5 rounded">
+          <%= @order.status.capitalize %>
+        </span>
+      </div>
+      
+      <div class="flex space-x-2">
+        <% if @order.status == 'pending' %>
+          <%= button_to "Process", process_order_order_path(@order), method: :patch, class: "bg-blue-600 hover:bg-blue-700 text-white font-medium py-1 px-3 rounded text-sm" %>
+          <%= button_to "Cancel", cancel_order_order_path(@order), method: :patch, data: { confirm: "Are you sure you want to cancel this order?" }, class: "bg-red-600 hover:bg-red-700 text-white font-medium py-1 px-3 rounded text-sm" %>
+        <% elsif @order.status == 'processing' %>
+          <%= button_to "Ship", ship_order_order_path(@order), method: :patch, class: "bg-purple-600 hover:bg-purple-700 text-white font-medium py-1 px-3 rounded text-sm" %>
+          <%= button_to "Cancel", cancel_order_order_path(@order), method: :patch, data: { confirm: "Are you sure you want to cancel this order?" }, class: "bg-red-600 hover:bg-red-700 text-white font-medium py-1 px-3 rounded text-sm" %>
+        <% elsif @order.status == 'shipped' %>
+          <%= button_to "Mark Delivered", deliver_order_order_path(@order), method: :patch, class: "bg-green-600 hover:bg-green-700 text-white font-medium py-1 px-3 rounded text-sm" %>
+          <%= button_to "Cancel", cancel_order_order_path(@order), method: :patch, data: { confirm: "Are you sure you want to cancel this order?" }, class: "bg-red-600 hover:bg-red-700 text-white font-medium py-1 px-3 rounded text-sm" %>
+        <% elsif @order.status == 'delivered' %>
+          <span class="text-green-600 font-medium">Order completed</span>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Customer Info -->
+  <div class="bg-white p-6 rounded-lg shadow">
+    <h2 class="text-lg font-semibold mb-4">Customer Information</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <h3 class="text-sm font-medium text-gray-500 mb-1">Name</h3>
+        <p><%= link_to @order.customer.name, customer_path(@order.customer), class: "text-blue-600 hover:underline" %></p>
+      </div>
+      <div>
+        <h3 class="text-sm font-medium text-gray-500 mb-1">Email</h3>
+        <p><%= mail_to @order.customer.email, @order.customer.email, class: "text-blue-600 hover:underline" %></p>
+      </div>
+      <div>
+        <h3 class="text-sm font-medium text-gray-500 mb-1">Phone</h3>
+        <p><%= @order.customer.phone %></p>
+      </div>
+      <div>
+        <h3 class="text-sm font-medium text-gray-500 mb-1">Address</h3>
+        <p class="whitespace-pre-wrap"><%= @order.customer.address %></p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Order Items -->
+  <div class="bg-white p-6 rounded-lg shadow">
+    <h2 class="text-lg font-semibold mb-4">Order Items</h2>
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Unit Price</th>
+            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Subtotal</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @order.order_items.includes(:product).each do |item| %>
+            <tr>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <%= link_to item.product.name, product_path(item.product), class: "text-blue-600 hover:underline" %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
+                <%= number_to_currency(item.unit_price) %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
+                <%= item.quantity %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium text-right">
+                <%= number_to_currency(item.unit_price * item.quantity) %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+        <tfoot class="bg-gray-50">
+          <tr>
+            <td colspan="3" class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-right">Total</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 text-right">
+              <%= number_to_currency(@order.total) %>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+  
+  <div class="flex justify-between">
+    <div>
+      <% if ['pending', 'canceled'].include?(@order.status) %>
+        <%= link_to "Delete Order", order_path(@order), 
+            data: { turbo_method: :delete, turbo_confirm: "Are you sure you want to delete this order?" }, 
+            class: "text-red-600 hover:text-red-900 font-medium" %>
+      <% end %>
+    </div>
+  </div>
+</div>

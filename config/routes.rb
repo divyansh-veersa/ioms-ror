@@ -5,4 +5,13 @@ Rails.application.routes.draw do
 
   resources :products
   resources :customers
+
+  resources :orders do
+    member do
+      patch :process_order
+      patch :ship_order
+      patch :deliver_order
+      patch :cancel_order
+    end
+  end
 end

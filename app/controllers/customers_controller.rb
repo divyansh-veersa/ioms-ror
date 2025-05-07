@@ -36,6 +36,12 @@ class CustomersController < ApplicationController
   end
 
   def destroy
+    if @customer.orders.any?
+      redirect_to @customer, alert: "Cannot delete customer with existing orders.", status: :unprocessable_entity
+    else
+      @customer.destroy
+      redirect_to customers_url, notice: "Customer was successfully deleted.", status: :see_other
+    end
   end
 
   private
